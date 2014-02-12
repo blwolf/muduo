@@ -1,7 +1,6 @@
 #include <muduo/net/EventLoop.h>
 
 #include <iostream>
-#include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 
 class Printer : boost::noncopyable
@@ -11,7 +10,7 @@ class Printer : boost::noncopyable
     : loop_(loop),
       count_(0)
   {
-    loop_->runAfter(1, boost::bind(&Printer::print, this));
+    loop_->runAfter(1, std::bind(&Printer::print, this));
   }
 
   ~Printer()
@@ -26,7 +25,7 @@ class Printer : boost::noncopyable
       std::cout << count_ << "\n";
       ++count_;
 
-      loop_->runAfter(1, boost::bind(&Printer::print, this));
+      loop_->runAfter(1, std::bind(&Printer::print, this));
     }
     else
     {
