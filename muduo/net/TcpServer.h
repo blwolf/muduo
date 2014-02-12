@@ -35,7 +35,7 @@ class EventLoopThreadPool;
 class TcpServer : boost::noncopyable
 {
  public:
-  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+  typedef std::function<void(EventLoop*)> ThreadInitCallback;
   enum Option
   {
     kNoReusePort,
