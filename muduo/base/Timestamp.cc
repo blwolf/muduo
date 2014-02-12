@@ -6,11 +6,10 @@
 #include <inttypes.h>
 #undef __STDC_FORMAT_MACROS
 
-#include <boost/static_assert.hpp>
-
 using namespace muduo;
 
-BOOST_STATIC_ASSERT(sizeof(Timestamp) == sizeof(int64_t));
+static_assert(sizeof(Timestamp) == sizeof(int64_t),
+              "Timestamp is same size as int64_t");
 
 Timestamp::Timestamp(int64_t microseconds)
   : microSecondsSinceEpoch_(microseconds)
