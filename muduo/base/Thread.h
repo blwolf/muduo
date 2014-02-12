@@ -9,9 +9,9 @@
 #include <muduo/base/Atomic.h>
 #include <muduo/base/Types.h>
 
-#include <boost/function.hpp>
+#include <functional>
+#include <memory>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 #include <pthread.h>
 
 namespace muduo
@@ -20,7 +20,7 @@ namespace muduo
 class Thread : boost::noncopyable
 {
  public:
-  typedef boost::function<void ()> ThreadFunc;
+  typedef std::function<void ()> ThreadFunc;
 
   explicit Thread(const ThreadFunc&, const string& name = string());
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
@@ -44,7 +44,7 @@ class Thread : boost::noncopyable
   bool       started_;
   bool       joined_;
   pthread_t  pthreadId_;
-  boost::shared_ptr<pid_t> tid_;
+  std::shared_ptr<pid_t> tid_;
   ThreadFunc func_;
   string     name_;
 
