@@ -24,6 +24,7 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 
 // should really belong to base/Types.h, but <memory> is not included there.
+
 // Adapted from google-protobuf stubs/common.h
 // see License in muduo/base/Types.h
 template<typename To, typename From>
@@ -39,7 +40,13 @@ inline ::std::shared_ptr<To> down_pointer_cast(const ::std::shared_ptr<From>& f)
 }
 
 template<typename T>
-T* get_pointer(const std::shared_ptr<T>& ptr)
+inline T* get_pointer(const std::shared_ptr<T>& ptr)
+{
+  return ptr.get();
+}
+
+template<typename T>
+inline T* get_pointer(const std::unique_ptr<T>& ptr)
 {
   return ptr.get();
 }
