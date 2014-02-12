@@ -40,8 +40,8 @@ void ThreadPool::start(int numThreads)
   {
     char id[32];
     snprintf(id, sizeof id, "%d", i+1);
-    threads_.push_back(std::unique_ptr<muduo::Thread>(new muduo::Thread(
-          std::bind(&ThreadPool::runInThread, this), name_+id)));
+    threads_.emplace_back(new muduo::Thread(
+          std::bind(&ThreadPool::runInThread, this), name_+id));
     threads_[i]->start();
   }
 }

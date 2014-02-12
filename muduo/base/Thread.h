@@ -26,6 +26,7 @@ class Thread : boost::noncopyable
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
   explicit Thread(ThreadFunc&&, const string& name = string());
 #endif
+  // FIXME: make it movable in C++11
   ~Thread();
 
   void start();

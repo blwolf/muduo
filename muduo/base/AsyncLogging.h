@@ -49,10 +49,6 @@ class AsyncLogging : boost::noncopyable
 
  private:
 
-  // declare but not define, prevent compiler-synthesized functions
-  AsyncLogging(const AsyncLogging&);  // ptr_container
-  void operator=(const AsyncLogging&);  // ptr_container
-
   void threadFunc();
 
   typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
