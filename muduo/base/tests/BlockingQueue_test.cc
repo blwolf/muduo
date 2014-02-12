@@ -2,11 +2,12 @@
 #include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <stdio.h>
 #include <unistd.h>
+
+using std::placeholders::_1;
 
 class Test
 {
@@ -20,9 +21,9 @@ class Test
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
       threads_.push_back(new muduo::Thread(
-            boost::bind(&Test::threadFunc, this), muduo::string(name)));
+            std::bind(&Test::threadFunc, this), muduo::string(name)));
     }
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::start, _1));
+    for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::start, _1));
   }
 
   void run(int times)
@@ -46,7 +47,7 @@ class Test
       queue_.put("stop");
     }
 
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::join, _1));
+    for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::join, _1));
   }
 
  private:

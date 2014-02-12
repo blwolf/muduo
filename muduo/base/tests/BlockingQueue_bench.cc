@@ -3,11 +3,12 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <map>
 #include <string>
 #include <stdio.h>
+
+using std::placeholders::_1;
 
 class Bench
 {
@@ -21,9 +22,9 @@ class Bench
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
       threads_.push_back(new muduo::Thread(
-            boost::bind(&Bench::threadFunc, this), muduo::string(name)));
+            std::bind(&Bench::threadFunc, this), muduo::string(name)));
     }
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::start, _1));
+    for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::start, _1));
   }
 
   void run(int times)
@@ -46,7 +47,7 @@ class Bench
       queue_.put(muduo::Timestamp::invalid());
     }
 
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::join, _1));
+    for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::join, _1));
   }
 
  private:

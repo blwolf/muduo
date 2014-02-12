@@ -3,7 +3,6 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <vector>
 #include <stdio.h>
