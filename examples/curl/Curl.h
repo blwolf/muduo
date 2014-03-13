@@ -3,6 +3,8 @@
 
 #include <muduo/base/StringPiece.h>
 
+#include <muduo/net/Callbacks.h>
+
 extern "C"
 {
 typedef void CURLM;
@@ -79,7 +81,7 @@ class Request : public std::enable_shared_from_this<Request>,
   void removeChannel();
   void done(int code);
   CURL* getCurl() { return curl_; }
-  muduo::net::Channel* getChannel() { return get_pointer(channel_); }
+  muduo::net::Channel* getChannel() { return muduo::get_pointer(channel_); }
 
  private:
 
@@ -99,7 +101,7 @@ class Request : public std::enable_shared_from_this<Request>,
 
 typedef std::shared_ptr<Request> RequestPtr;
 
-class Curl : noncopyable
+class Curl : muduo::noncopyable
 {
  public:
 
