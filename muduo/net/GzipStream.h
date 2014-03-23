@@ -1,7 +1,7 @@
 #pragma once
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/net/Buffer.h>
-#include <boost/noncopyable.hpp>
 #include <zlib.h>
 
 namespace muduo
@@ -10,9 +10,9 @@ namespace net
 {
 
 // FIXME
-// class GzipInputStream : boost::noncopyable
+// class GzipInputStream : noncopyable
 
-class GzipOutputStream : boost::noncopyable
+class GzipOutputStream : noncopyable
 {
  public:
   explicit GzipOutputStream(Buffer* output)
