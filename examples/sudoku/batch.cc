@@ -1,11 +1,8 @@
-#include "sudoku.h"
+#include "examples/sudoku/sudoku.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpClient.h>
-
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpClient.h"
 
 #include <fstream>
 
@@ -41,7 +38,7 @@ void runLocal(std::istream& in)
 }
 
 typedef std::vector<string> Input;
-typedef boost::shared_ptr<Input> InputPtr;
+typedef std::shared_ptr<Input> InputPtr;
 
 InputPtr readInput(std::istream& in)
 {
@@ -57,9 +54,9 @@ InputPtr readInput(std::istream& in)
   return input;
 }
 
-typedef boost::function<void(const string&, double)> DoneCallback;
+typedef std::function<void(const string&, double, int)> DoneCallback;
 
-class SudokuClient : boost::noncopyable
+class SudokuClient : noncopyable
 {
  public:
   SudokuClient(EventLoop* loop,
@@ -75,9 +72,9 @@ class SudokuClient : boost::noncopyable
       count_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&SudokuClient::onConnection, this, _1));
+        std::bind(&SudokuClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&SudokuClient::onMessage, this, _1, _2, _3));
+        std::bind(&SudokuClient::onMessage, this, _1, _2, _3));
   }
 
   void connect()
@@ -139,11 +136,11 @@ class SudokuClient : boost::noncopyable
       }
     }
 
-    if (count_ == input_->size())
+    if (count_ == static_cast<int>(input_->size()))
     {
       LOG_INFO << name_ << " done.";
       double elapsed = timeDifference(Timestamp::now(), start_);
-      cb_(name_, elapsed);
+      cb_(name_, elapsed, count_);
       conn->shutdown();
     }
   }
@@ -152,7 +149,7 @@ class SudokuClient : boost::noncopyable
   TcpClient client_;
   InputPtr input_;
   DoneCallback cb_;
-  size_t count_;
+  int count_;
   Timestamp start_;
 };
 
@@ -161,13 +158,15 @@ int g_connections;
 int g_finished;
 EventLoop* g_loop;
 
-void done(const string& name, double elapsed)
+void done(const string& name, double elapsed, int count)
 {
-  LOG_INFO << name << " " << elapsed << " seconds";
+  LOG_INFO << name << " " << elapsed << " seconds "
+           << Fmt("%.3f", 1000 * 1000 * elapsed / count)
+           << " us per request.";
   ++g_finished;
   if (g_finished == g_connections)
   {
-    g_loop->runAfter(1.0, boost::bind(&EventLoop::quit, g_loop));
+    g_loop->runAfter(1.0, std::bind(&EventLoop::quit, g_loop));
     double total = timeDifference(Timestamp::now(), g_start);
     LOG_INFO << "total " << total << " seconds, "
              << (total/g_connections) << " seconds per client";
@@ -182,13 +181,13 @@ void runClient(std::istream& in, const InetAddress& serverAddr, int conn)
   g_connections = conn;
 
   g_start = Timestamp::now();
-  boost::ptr_vector<SudokuClient> clients;
+  std::vector<std::unique_ptr<SudokuClient>> clients;
   for (int i = 0; i < conn; ++i)
   {
     Fmt f("client-%03d", i+1);
     string name(f.data(), f.length());
-    clients.push_back(new SudokuClient(&loop, serverAddr, input, name, done));
-    clients.back().connect();
+    clients.emplace_back(new SudokuClient(&loop, serverAddr, input, name, done));
+    clients.back()->connect();
   }
 
   loop.loop();
@@ -207,8 +206,8 @@ int main(int argc, char* argv[])
       // FALL THROUGH
     case 3:
       serverAddr = InetAddress(argv[2], 9981);
-      // FALL THROUGH
       local = false;
+      // FALL THROUGH
     case 2:
       input = argv[1];
       break;

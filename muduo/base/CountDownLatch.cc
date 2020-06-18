@@ -3,7 +3,7 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/CountDownLatch.h>
+#include "muduo/base/CountDownLatch.h"
 
 using namespace muduo;
 
@@ -17,7 +17,8 @@ CountDownLatch::CountDownLatch(int count)
 void CountDownLatch::wait()
 {
   MutexLockGuard lock(mutex_);
-  while (count_ > 0) {
+  while (count_ > 0)
+  {
     condition_.wait();
   }
 }
@@ -26,7 +27,8 @@ void CountDownLatch::countDown()
 {
   MutexLockGuard lock(mutex_);
   --count_;
-  if (count_ == 0) {
+  if (count_ == 0)
+  {
     condition_.notifyAll();
   }
 }

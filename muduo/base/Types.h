@@ -2,12 +2,8 @@
 #define MUDUO_BASE_TYPES_H
 
 #include <stdint.h>
-#ifdef MUDUO_STD_STRING
+#include <string.h>  // memset
 #include <string>
-#else  // !MUDUO_STD_STRING
-#include <ext/vstring.h>
-#include <ext/vstring_fwd.h>
-#endif
 
 #ifndef NDEBUG
 #include <assert.h>
@@ -19,11 +15,12 @@
 namespace muduo
 {
 
-#ifdef MUDUO_STD_STRING
 using std::string;
-#else  // !MUDUO_STD_STRING
-typedef __gnu_cxx::__sso_string string;
-#endif
+
+inline void memZero(void* p, size_t n)
+{
+  memset(p, 0, n);
+}
 
 // Taken from google-protobuf stubs/common.h
 //
@@ -80,7 +77,8 @@ typedef __gnu_cxx::__sso_string string;
 // but the proposal was submitted too late.  It will probably make
 // its way into the language in the future.
 template<typename To, typename From>
-inline To implicit_cast(From const &f) {
+inline To implicit_cast(From const &f)
+{
   return f;
 }
 
@@ -103,12 +101,14 @@ inline To implicit_cast(From const &f) {
 // You should design the code some other way not to need this.
 
 template<typename To, typename From>     // use like this: down_cast<T*>(foo);
-inline To down_cast(From* f) {                   // so we only accept pointers
+inline To down_cast(From* f)                     // so we only accept pointers
+{
   // Ensures that To is a sub-type of From *.  This test is here only
   // for compile-time type checking, and has no overhead in an
   // optimized build at run-time, as it will be optimized away
   // completely.
-  if (false) {
+  if (false)
+  {
     implicit_cast<From*, To>(0);
   }
 
@@ -118,6 +118,6 @@ inline To down_cast(From* f) {                   // so we only accept pointers
   return static_cast<To>(f);
 }
 
-}
+}  // namespace muduo
 
-#endif
+#endif  // MUDUO_BASE_TYPES_H

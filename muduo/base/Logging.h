@@ -1,8 +1,13 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_LOGGING_H
 #define MUDUO_BASE_LOGGING_H
 
-#include <muduo/base/LogStream.h>
-#include <muduo/base/Timestamp.h>
+#include "muduo/base/LogStream.h"
+#include "muduo/base/Timestamp.h"
 
 namespace muduo
 {
@@ -28,7 +33,7 @@ class Logger
   {
    public:
     template<int N>
-    inline SourceFile(const char (&arr)[N])
+    SourceFile(const char (&arr)[N])
       : data_(arr),
         size_(N-1)
     {
@@ -140,13 +145,15 @@ const char* strerror_tl(int savedErrno);
 
 // A small helper for CHECK_NOTNULL().
 template <typename T>
-T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr) {
-  if (ptr == NULL) {
+T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr)
+{
+  if (ptr == NULL)
+  {
    Logger(file, line, Logger::FATAL).stream() << names;
   }
   return ptr;
 }
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_LOGGING_H

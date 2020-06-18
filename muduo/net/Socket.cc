@@ -6,15 +6,14 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/Socket.h>
+#include "muduo/net/Socket.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/InetAddress.h>
-#include <muduo/net/SocketsOps.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/InetAddress.h"
+#include "muduo/net/SocketsOps.h"
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <strings.h>  // bzero
 #include <stdio.h>  // snprintf
 
 using namespace muduo;
@@ -28,7 +27,7 @@ Socket::~Socket()
 bool Socket::getTcpInfo(struct tcp_info* tcpi) const
 {
   socklen_t len = sizeof(*tcpi);
-  bzero(tcpi, len);
+  memZero(tcpi, len);
   return ::getsockopt(sockfd_, SOL_TCP, TCP_INFO, tcpi, &len) == 0;
 }
 
@@ -60,7 +59,7 @@ bool Socket::getTcpInfoString(char* buf, int len) const
 
 void Socket::bindAddress(const InetAddress& addr)
 {
-  sockets::bindOrDie(sockfd_, addr.getSockAddrInet());
+  sockets::bindOrDie(sockfd_, addr.getSockAddr());
 }
 
 void Socket::listen()
@@ -70,12 +69,12 @@ void Socket::listen()
 
 int Socket::accept(InetAddress* peeraddr)
 {
-  struct sockaddr_in addr;
-  bzero(&addr, sizeof addr);
+  struct sockaddr_in6 addr;
+  memZero(&addr, sizeof addr);
   int connfd = sockets::accept(sockfd_, &addr);
   if (connfd >= 0)
   {
-    peeraddr->setSockAddrInet(addr);
+    peeraddr->setSockAddrInet6(addr);
   }
   return connfd;
 }
@@ -107,7 +106,7 @@ void Socket::setReusePort(bool on)
   int optval = on ? 1 : 0;
   int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
                          &optval, static_cast<socklen_t>(sizeof optval));
-  if (ret < 0)
+  if (ret < 0 && on)
   {
     LOG_SYSERR << "SO_REUSEPORT failed.";
   }

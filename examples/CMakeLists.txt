@@ -42,3 +42,8 @@ else()
   add_subdirectory(protobuf EXCLUDE_FROM_ALL)
 endif()
 
+if(GD_INCLUDE_DIR AND GD_LIBRARY)
+  add_subdirectory(procmon)
+else()
+  add_subdirectory(procmon EXCLUDE_FROM_ALL)
+endif()

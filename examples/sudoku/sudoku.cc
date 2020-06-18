@@ -1,10 +1,13 @@
-#include "sudoku.h"
+#include "examples/sudoku/sudoku.h"
 
 #include <vector>
 #include <assert.h>
 #include <string.h>
 
 using namespace muduo;
+
+// Dancing links algorithm by Donald E. Knuth
+// www-cs-faculty.stanford.edu/~uno/papers/dancing-color.ps.gz
 
 struct Node;
 typedef Node Column;
@@ -22,6 +25,7 @@ struct Node
 const int kMaxNodes = 1 + 81*4 + 9*9*9*4;
 // const int kMaxColumns = 400;
 const int kRow = 100, kCol = 200, kBox = 300;
+extern const char kNoSolution[] = "NoSolution";
 
 class SudokuSolver
 {
@@ -34,7 +38,7 @@ class SudokuSolver
 
         root_ = new_column();
         root_->left = root_->right = root_;
-        memset(columns_, 0, sizeof(columns_));
+        memZero(columns_, sizeof(columns_));
 
         bool rows[kCells][10] = { {false} };
         bool cols[kCells][10] = { {false} };
@@ -141,7 +145,7 @@ class SudokuSolver
     {
         assert(cur_node_ < kMaxNodes);
         Column* c = &nodes_[cur_node_++];
-        memset(c, 0, sizeof(Column));
+        memZero(c, sizeof(Column));
         c->left = c;
         c->right = c;
         c->up = c;
@@ -168,7 +172,7 @@ class SudokuSolver
         Node* r = &nodes_[cur_node_++];
 
         //Node* r = new Node;
-        memset(r, 0, sizeof(Node));
+        memZero(r, sizeof(Node));
         r->left = r;
         r->right = r;
         r->up = r;
@@ -260,7 +264,7 @@ string solveSudoku(const StringPiece& puzzle)
 {
   assert(puzzle.size() == kCells);
 
-  string result = "NoSolution";
+  string result = kNoSolution;
 
   int board[kCells] = { 0 };
   bool valid = true;

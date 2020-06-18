@@ -1,11 +1,11 @@
-#include "MemcacheServer.h"
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/inspect/ProcessInspector.h>
+#include "examples/memcached/server/MemcacheServer.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/inspect/ProcessInspector.h"
 
 #include <stdio.h>
 #ifdef HAVE_TCMALLOC
-#include <google/heap-profiler.h>
-#include <google/malloc_extension.h>
+#include <gperftools/heap-profiler.h>
+#include <gperftools/malloc_extension.h>
 #endif
 
 using namespace muduo::net;

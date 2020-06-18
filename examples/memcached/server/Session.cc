@@ -1,8 +1,8 @@
-#include "Session.h"
-#include "MemcacheServer.h"
+#include "examples/memcached/server/Session.h"
+#include "examples/memcached/server/MemcacheServer.h"
 
 #ifdef HAVE_TCMALLOC
-#include <google/malloc_extension.h>
+#include <gperftools/malloc_extension.h>
 #endif
 
 using namespace muduo;

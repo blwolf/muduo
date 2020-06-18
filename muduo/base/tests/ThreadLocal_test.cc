@@ -1,11 +1,10 @@
-#include <muduo/base/ThreadLocal.h>
-#include <muduo/base/CurrentThread.h>
-#include <muduo/base/Thread.h>
+#include "muduo/base/ThreadLocal.h"
+#include "muduo/base/CurrentThread.h"
+#include "muduo/base/Thread.h"
 
-#include <boost/noncopyable.hpp>
 #include <stdio.h>
 
-class Test : boost::noncopyable
+class Test : muduo::noncopyable
 {
  public:
   Test()
@@ -32,11 +31,11 @@ void print()
 {
   printf("tid=%d, obj1 %p name=%s\n",
          muduo::CurrentThread::tid(),
-	 &testObj1.value(),
+         &testObj1.value(),
          testObj1.value().name().c_str());
   printf("tid=%d, obj2 %p name=%s\n",
          muduo::CurrentThread::tid(),
-	 &testObj2.value(),
+         &testObj2.value(),
          testObj2.value().name().c_str());
 }
 

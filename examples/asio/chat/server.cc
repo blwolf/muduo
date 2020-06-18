@@ -1,30 +1,29 @@
-#include "codec.h"
+#include "examples/asio/chat/codec.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
 
 #include <set>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-class ChatServer : boost::noncopyable
+class ChatServer : noncopyable
 {
  public:
   ChatServer(EventLoop* loop,
              const InetAddress& listenAddr)
   : server_(loop, listenAddr, "ChatServer"),
-    codec_(boost::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
+    codec_(std::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
   {
     server_.setConnectionCallback(
-        boost::bind(&ChatServer::onConnection, this, _1));
+        std::bind(&ChatServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
   }
 
   void start()
@@ -35,8 +34,8 @@ class ChatServer : boost::noncopyable
  private:
   void onConnection(const TcpConnectionPtr& conn)
   {
-    LOG_INFO << conn->localAddress().toIpPort() << " -> "
-             << conn->peerAddress().toIpPort() << " is "
+    LOG_INFO << conn->peerAddress().toIpPort() << " -> "
+             << conn->localAddress().toIpPort() << " is "
              << (conn->connected() ? "UP" : "DOWN");
 
     if (conn->connected())

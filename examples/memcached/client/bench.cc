@@ -1,10 +1,9 @@
-#include <muduo/base/CountDownLatch.h>
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThreadPool.h>
-#include <muduo/net/TcpClient.h>
+#include "muduo/base/CountDownLatch.h"
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThreadPool.h"
+#include "muduo/net/TcpClient.h"
 
-#include <boost/bind.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
 
@@ -14,7 +13,7 @@ namespace po = boost::program_options;
 using namespace muduo;
 using namespace muduo::net;
 
-class Client : boost::noncopyable
+class Client : noncopyable
 {
  public:
   enum Operation
@@ -45,8 +44,8 @@ class Client : boost::noncopyable
       finished_(finished)
   {
     value_ += "\r\n";
-    client_.setConnectionCallback(boost::bind(&Client::onConnection, this, _1));
-    client_.setMessageCallback(boost::bind(&Client::onMessage, this, _1, _2, _3));
+    client_.setConnectionCallback(std::bind(&Client::onConnection, this, _1));
+    client_.setMessageCallback(std::bind(&Client::onMessage, this, _1, _2, _3));
     client_.connect();
   }
 
@@ -69,6 +68,7 @@ class Client : boost::noncopyable
     else
     {
       conn_.reset();
+      client_.getLoop()->queueInLoop(std::bind(&CountDownLatch::countDown, finished_));
     }
   }
 
@@ -121,7 +121,6 @@ class Client : boost::noncopyable
     if (acked_ == requests_)
     {
       conn_->shutdown();
-      finished_->countDown();
     }
   }
 
@@ -196,7 +195,7 @@ int main(int argc, char* argv[])
   LOG_WARN << "Connecting " << serverAddr.toIpPort();
 
   EventLoop loop;
-  EventLoopThreadPool pool(&loop);
+  EventLoopThreadPool pool(&loop, "bench-memcache");
 
   int valuelen = 100;
   Client::Operation op = set ? Client::kSet : Client::kGet;
@@ -210,11 +209,11 @@ int main(int argc, char* argv[])
   char buf[32];
   CountDownLatch connected(clients);
   CountDownLatch finished(clients);
-  boost::ptr_vector<Client> holder;
+  std::vector<std::unique_ptr<Client>> holder;
   for (int i = 0; i < clients; ++i)
   {
     snprintf(buf, sizeof buf, "%d-", i+1);
-    holder.push_back(new Client(buf,
+    holder.emplace_back(new Client(buf,
                                 pool.getNextLoop(),
                                 serverAddr,
                                 op,
@@ -229,7 +228,7 @@ int main(int argc, char* argv[])
   Timestamp start = Timestamp::now();
   for (int i = 0; i < clients; ++i)
   {
-    holder[i].send();
+    holder[i]->send();
   }
   finished.wait();
   Timestamp end = Timestamp::now();
